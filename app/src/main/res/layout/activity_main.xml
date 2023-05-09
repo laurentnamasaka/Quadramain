@@ -1,39 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/aEditText"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/aInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="numberDecimal|numberSigned"
-        android:hint="Enter a" />
+        android:hint="Enter a">
 
-    <EditText
-        android:id="@+id/bEditText"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/aEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal|numberSigned"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/bInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="numberDecimal|numberSigned"
-        android:hint="Enter b" />
+        android:hint="Enter b">
 
-    <EditText
-        android:id="@+id/cEditText"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/bEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal|numberSigned"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/cInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="numberDecimal|numberSigned"
-        android:hint="Enter c" />
+        android:hint="Enter c">
 
-    <Button
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/cEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal|numberSigned"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/solveButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Solve" />
+        android:text="Solve"
+        android:layout_gravity="center_horizontal"
+        app:cornerRadius="8dp"
+        app:backgroundTint="@color/material3_color_primary"
+        app:rippleColor="@color/material3_color_secondary"/>
 
     <TextView
         android:id="@+id/solutionTextView"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"/>
 
 </LinearLayout>
