@@ -54,10 +54,16 @@ class MainActivity : ComponentActivity() {
     private lateinit var calculateButton: Button
     private lateinit var solutionTextView: TextView
 
+    private lateinit var chart: LineChart
+
     @SuppressLint("SetTextI18n", "UnrememberedMutableState")
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        com.github.mikephil.charting.utils.Utils.init(this)
+        setContentView(R.layout.activity_main)
+
+        val chart = findViewById<LineChart>(R.id.chart)
 
         setContent {
             QuadraTheme {
@@ -128,7 +134,6 @@ class MainActivity : ComponentActivity() {
                         dataset.valueTextColor = Color.Black.toArgb()
 
                         val lineData = LineData(dataset)
-                        val chart = findViewById<LineChart>(R.id.chart)
                         chart.data = lineData
                         chart.invalidate()
 
