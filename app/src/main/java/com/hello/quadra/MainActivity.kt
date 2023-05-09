@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.widget.Button
 import android.widget.TextView
 import android.widget.EditText
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -23,17 +24,26 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.github.mikephil.charting.charts.LineChart
 import kotlin.math.sqrt
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
 
 
 class MainActivity : ComponentActivity() {
@@ -44,7 +54,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var calculateButton: Button
     private lateinit var solutionTextView: TextView
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint("SetTextI18n", "UnrememberedMutableState")
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,9 +83,55 @@ class MainActivity : ComponentActivity() {
                         val solutions = remember {
                             mutableStateOf<Pair<String?, String?>>(null to null)
                         }
-                        val  errorMessage = remember {
+                        val errorMessage = remember {
                             mutableStateOf("")
                         }
+
+                        // Button activity
+
+                        var clicked = remember {
+                            mutableStateOf(false)
+                        }
+
+                        val buttonColor by animateColorAsState(
+                            if (clicked.value) Color.Green else MaterialTheme.colorScheme.primary
+                        )
+
+                        // MutableList to display calculations history
+                        val history = remember {
+                            mutableStateListOf<Pair <String, String>>()
+                        }
+
+                        // Graph
+                        val entries = mutableListOf<Entry>()
+
+                        fun getNumericValue(textFieldValue: TextFieldValue): Double {
+                            return try {
+                                textFieldValue.text.toDouble()
+                            } catch (e: NumberFormatException) {
+                                // Handle the exception here
+                                0.0 // Default value in case of an exception
+                            }
+                        }
+
+                        val aNumeric = getNumericValue(a.value)
+                        val bNumeric = getNumericValue(b.value)
+                        val cNumeric = getNumericValue(c.value)
+
+                        for (x in -10..10) {
+                            val y = aNumeric * x * x + bNumeric * x + cNumeric
+                            entries.add(Entry(x.toFloat(), y.toFloat()))
+                        }
+
+                        val dataset = LineDataSet(entries, "Quadratic Equation")
+                        dataset.color = Color.Black.toArgb()
+                        dataset.valueTextColor = Color.Black.toArgb()
+
+                        val lineData = LineData(dataset)
+                        val chart = findViewById<LineChart>(R.id.chart)
+                        chart.data = lineData
+                        chart.invalidate()
+
                         OutlinedTextField(
                             value = a.value,
                             onValueChange = { a.value = it},
@@ -117,6 +173,7 @@ class MainActivity : ComponentActivity() {
                         // Button to solve the quadratic equation
                         Button(
                             onClick = {
+                                clicked = clicked
                                 val aVal = a.value.text.toDoubleOrNull() ?: 0.0
                                 val bVal = b.value.text.toDoubleOrNull() ?: 0.0
                                 val cVal = c.value.text.toDoubleOrNull() ?: 0.0
@@ -133,11 +190,16 @@ class MainActivity : ComponentActivity() {
                                     errorMessage.value = ""
                                     solutions.value =
                                         solveQuadratic(aVal, bVal, cVal)
+
+                                    val inputValues = "a: $aVal, b: $bVal, c: $cVal"
+                                    val result = "x1: ${solutions.value.first}, x2: ${solutions.value.second}"
+                                    history.add(Pair(inputValues, result))
                                 }
                             },
                             modifier = Modifier
                                 .padding(vertical = 16.dp, horizontal = 20.dp)
-                                .fillMaxWidth()
+                                .fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
                         ) {
                             Text("Solve")
                         }
@@ -149,7 +211,8 @@ class MainActivity : ComponentActivity() {
                                 text = errorMessage.value,
                                 color = Color.Red,
                                 modifier =
-                                Modifier.padding(horizontal=16.dp)
+                                Modifier
+                                    .padding(horizontal = 16.dp)
                                     .fillMaxWidth()
                                     .wrapContentWidth(Alignment.CenterHorizontally)
                             )
@@ -164,11 +227,21 @@ class MainActivity : ComponentActivity() {
                                 } else {
                                     "No real solutions"
                                 },
-                                modifier = Modifier.padding(vertical = 16.dp, horizontal = 20.dp)
-                                    .fillMaxWidth().wrapContentWidth(
-                                    Alignment.CenterHorizontally
-                                )
+                                modifier = Modifier
+                                    .padding(vertical = 16.dp, horizontal = 20.dp)
+                                    .fillMaxWidth()
+                                    .wrapContentWidth(
+                                        Alignment.CenterHorizontally
+                                    )
                             )
+                        }
+                        
+                        LazyColumn {
+                            items(history.size) { index ->
+                                val item = history[index]
+                                Text(text = "Input: ${item.first}")
+                                Text(text = "Input: ${item.second}")
+                            }
                         }
                     }
                 }
